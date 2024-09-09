@@ -1,0 +1,14 @@
+﻿Atividade 1:
+1 – “Hello World” n vezes, sendo n a quantidade de threads.
+3 – Apenas a quantidade de threads ao alterar o número. Porém, a cada vez que rodamos o programa, as threads executam em ordens diferentes.
+4 – Não, não esperava que a ordem seria diferente. Porém, a quantidade de vezes que “Hello World” foi impresso era esperado.
+
+Atividade 2:
+4 - Porque o long int tem o tamanho do ponteiro.
+
+Atividade 3:
+4 – Para receber e compartilhar variáveis com as threads.
+
+Atividade 4:
+4 – O join volta a compilação ao fluxo sequencial.
+

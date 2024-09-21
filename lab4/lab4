@@ -1,0 +1,18 @@
+Laboratório 4
+Atividade 1
+Questão 3) Os valores impressos foram diferentes a cada execução? Por que?
+R.: Sim, devido a corrida de dados, algumas threads incrementavam a variável soma simultaneamente, e o choque de era registrado apenas como um incremento.
+Questão 4) E possível que a variável soma termine com valor acima de 200000 quando executamos com 2 threads? Por que?
+R.: Não, pois como há apenas operações de incremento, a corrida de dados mencionada acima pode apenas reduzir os incrementos a um incremento apenas, portanto, o valor só pode ser menor que 200000.
+Atividade 2
+Questão 2)Os valores impressos foram sempre o valor esperado? Por que?
+R.: Sim, pois dessa vez, como usamos um mecanismo para impedir a corrida de dados, cada thread acessa a variável soma de cada vez, isso vem, é claro, ao custo de velocidade.
+Atividade 3
+Questão 2) Quais valores devem ser impressos na saída do programa?
+R.: Todos os multiplos de 10 dentro da faixa assumida pela variável soma, bem como a soma final.
+Questão 3) Os valores impressos foram os valores esperados? Por que?
+R.: Não, nem todos os multiplos de 10 dentro da faixa assumida pela variável soma é impressa, pois quando o if vai verificar a variável, é possível que a thread tenha já incrementado ou não incrementado ainda, perdendo um dos múltiplos.
+Questão 4) Agora quais valores espera-se que sejam impressos na saída do programa?
+R.: Colocando o mutex dentro do laço for na função extra, é possível ver todos os múltiplos de 10 dentro da faixa assumida pela variável soma.
+Questão 5)O problema foi resolvido? Justifique.
+R.: Não, pois apesar da resposta acima, por causa do laço for de 100000 repetições, vemos cada múltiplo repetido várias vezes.

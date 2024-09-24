@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "timer.h"
+#include <time.h>
 
 typedef struct 
 {
@@ -31,8 +31,8 @@ Matriz* leMatriz(const char* filename)
     int n, m; // dimensão das matrizes
     size_t ret; //retorno da funcao de leitura no arquivo de entrada
     Matriz *matriz = (Matriz*) malloc(sizeof(Matriz)); // struct da matriz lida
-    FILE *arq = fopen(filename, "rb");
     
+    FILE *arq = fopen(filename, "rb");
     if(arq==NULL)
     {
         printf("--ERRO: fopen()\n"); 
@@ -102,15 +102,15 @@ void multiplicaMatrizes(Matriz *resultado, Matriz *matA, Matriz *matB)
     }
 }
 
-
 int main(int argc, char *argv[])
 {
     Matriz *mat, *matA, *matB; // matrizes
     FILE *descritorArquivo; //descritor do arquivo de saida
     size_t ret; //retorno da funcao de escrita no arquivo de saida
-    double inicio, fim, tempo_init, tempo_mult, tempo_fim; //timestamps
+    clock_t inicio, fim; 
+    double tempo_init, tempo_mult, tempo_fim; //timestamps
 
-    GET_TIME(inicio);
+    inicio = clock();
 
     //valida e recebe os valores de entrada
     if(argc < 4) {printf("Use: %s <arquivo de entrada da primeira matriz> <arquivo de entrada da segunda matriz> <arquivo de saída> \n", argv[0]); exit(-1); }
@@ -129,22 +129,22 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    GET_TIME(fim);
+    fim = clock();
 
     tempo_init = fim - inicio;
 
-    GET_TIME(inicio);
+    inicio = clock();
 
     mat = (Matriz*) malloc(sizeof(Matriz));
     multiplicaMatrizes(mat, matA, matB);
     printf("\nMatriz Resultante:\n");
     imprimeMatriz(mat);   
 
-    GET_TIME(fim);
+    fim = clock();
 
     tempo_mult = fim - inicio;
 
-    GET_TIME(inicio);
+    inicio = clock();
 
     // Abre o arquivo de saída
     descritorArquivo = fopen(argv[3], "wb");
@@ -167,13 +167,13 @@ int main(int argc, char *argv[])
     free(mat->valores);
     free(mat);
 
-    GET_TIME(fim);
+    fim = clock();
 
     tempo_fim = fim - inicio;
 
-    printf("\nTempo de inicialização sequencial é de %lf\n", tempo_init);
-    printf("\nTempo de multiplicação sequencial é de %lf\n", tempo_mult);
-    printf("\nTempo de finalização sequencial é de %lf\n", tempo_fim);
+    printf("\nTempo de inicialização sequencial é de %lf milissegundos.\n", tempo_init);
+    printf("\nTempo de multiplicação sequencial é de %lf milissegundos.\n", tempo_mult);
+    printf("\nTempo de finalização sequencial é de %lf milissegundos.\n", tempo_fim);
 
     return 0;
 }

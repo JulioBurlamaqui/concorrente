@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h> 
-#include "timer.h"
+#include <time.h>
 
 typedef struct 
 {
@@ -36,8 +36,8 @@ void leMatriz(const char* filename, Matriz* matriz)
 {//carrega matriz do binário
     int n, m; // dimensão das matrizes
     size_t ret; //retorno da funcao de leitura no arquivo de entrada
+    
     FILE *arq = fopen(filename, "rb");
-
     if(arq==NULL)
     {
         printf("--ERRO: fopen()\n"); 
@@ -89,9 +89,9 @@ void imprimeMatriz(Matriz *matriz)
 
 void *multiplicaMatrizes(void *tid)
 {
-    int id = (int) tid; //identificador da thread
+   long int id = (long int) tid; //identificador da thread
     int ini, fim, bloco; //auxiliares para divisao do vetor em blocos
-
+    
     bloco = matA->dim/nthreads; //tamanho do bloco de dados de cada thread
     ini = id*bloco; //posicao inicial do vetor
     fim = (id == (nthreads - 1)) ? matA->dim : ini + bloco; // posicao final do vetor
@@ -117,9 +117,10 @@ int main(int argc, char *argv[]) {
     FILE *descritorArquivo; //descritor do arquivo de saida
     size_t ret; //retorno da funcao de leitura no arquivo de saida
     pthread_t *tid_sistema; //vetor de identificadores das threads no sistema
-    double inicio, fim, tempo_init, tempo_mult, tempo_fim;
+    clock_t inicio, fim;
+    double tempo_init, tempo_mult, tempo_fim;
 
-    GET_TIME(inicio);
+    inicio = clock();
 
     //valida e recebe os valores de entrada
     if(argc < 5) { printf("Use: %s <arquivo de entrada da primeira matriz> <arquivo de entrada da segunda matriz> <arquivo de saída> <numero de threads> \n", argv[0]); exit(-1); }
@@ -144,11 +145,11 @@ int main(int argc, char *argv[]) {
     mat->dim = matA->dim;
     alocaMatriz(mat);
 
-    GET_TIME(fim);
+    fim = clock();
 
     tempo_init = fim - inicio;
 
-    GET_TIME(inicio);
+    inicio = clock();
 
     //le o numero de threads da entrada do usuario 
     nthreads = atoi(argv[4]);
@@ -163,9 +164,10 @@ int main(int argc, char *argv[]) {
     if(tid_sistema==NULL) {printf("--ERRO: malloc()\n"); exit(-1);}
 
     //cria as threads       
-    for(int i=0; i<nthreads; i++)
+    for(long int i=0; i<nthreads; i++)
     {  
-        if (pthread_create(&tid_sistema[i], NULL, multiplicaMatrizes, (void*) i)) 
+        long int id = i;
+        if (pthread_create(&tid_sistema[i], NULL, multiplicaMatrizes, (void*) id)) 
             {printf("--ERRO: pthread_create()\n"); exit(-1);}
     }
 
@@ -175,11 +177,11 @@ int main(int argc, char *argv[]) {
     printf("\nMatriz Resultante:\n");
     imprimeMatriz(mat);
 
-    GET_TIME(fim);
+    fim = clock();
 
     tempo_mult = fim - inicio;
 
-    GET_TIME(inicio);
+    inicio = clock();
 
     descritorArquivo = fopen(argv[3], "wb");
     if (descritorArquivo == NULL)
@@ -202,13 +204,13 @@ int main(int argc, char *argv[]) {
     free(mat);
     free(tid_sistema);
 
-    GET_TIME(fim);
+    fim = clock();
 
     tempo_fim = fim - inicio;
     
-    printf("\nTempo de inicialização concorrente é de %lf\n", tempo_init);
-    printf("\nTempo de multiplicação concorrente é de %lf\n", tempo_mult);
-    printf("\nTempo de finalização concorrente é de %lf\n", tempo_fim);
+    printf("\nTempo de inicialização concorrente é de %lf milissegundos.\n", tempo_init);
+    printf("\nTempo de multiplicação concorrente é de %lf milissegundos.\n", tempo_mult);
+    printf("\nTempo de finalização concorrente é de %lf milissegundos.\n", tempo_fim);
 
     return 0;
 }

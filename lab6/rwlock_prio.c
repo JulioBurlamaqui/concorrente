@@ -16,7 +16,6 @@
 struct list_node_s* head_p = NULL; 
 //qtde de threads no programa
 int nthreads;
-int leitores = 0;  // contador de leitores
 int escritores = 0; // contador de escritores
 
 //rwlock de exclusao mutua
@@ -41,16 +40,11 @@ void* tarefa(void* arg) {
             pthread_mutex_lock(&mutex);
                 while(escritores)
                     pthread_cond_wait(&cond, &mutex);
-                leitores++;  //novo leitor
-                printf("Número de leitores ativos: %d\nNúmero de escritores ativos: %d\n", leitores, escritores);
+                printf("Número de escritores ativos: %d\n", escritores);
             pthread_mutex_unlock(&mutex);
             
             pthread_rwlock_rdlock(&rwlock);  // trava com lock de leitura
-                Member(i%MAX_VALUE, head_p);  /* Ignore return value */
-            pthread_mutex_unlock(&mutex); 
-
-            pthread_mutex_lock(&mutex);
-                leitores--;  // fim da leitura   
+                Member(i%MAX_VALUE, head_p);  /* Ignore return value */  
             pthread_rwlock_unlock(&rwlock); //destranca o lock de leitura
 
             printf("Sou a thread %d, e li.\n", i);
@@ -61,7 +55,7 @@ void* tarefa(void* arg) {
             printf("Sou a thread %d, tentando inserir...\n", i);
             pthread_mutex_lock(&mutex);
                 escritores++;
-                printf("Número de leitores ativos: %d\nNúmero de escritores ativos: %d\n", leitores, escritores);
+                printf("Número de escritores ativos: %d\n", escritores);
             pthread_mutex_unlock(&mutex);
 
             pthread_rwlock_wrlock(&rwlock); /* lock de ESCRITA */ 
@@ -82,7 +76,7 @@ void* tarefa(void* arg) {
             printf("Sou a thread %d, tentando apagar...\n", i);
             pthread_mutex_lock(&mutex);
                 escritores++;
-                printf("Número de leitores ativos: %d\nNúmero de escritores ativos: %d\n", leitores, escritores);
+                printf("Número de escritores ativos: %d\n", escritores);
             pthread_mutex_unlock(&mutex);
 
             pthread_rwlock_wrlock(&rwlock); /* lock de ESCRITA */    

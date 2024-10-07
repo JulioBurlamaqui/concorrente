@@ -37,20 +37,23 @@ void* tarefa(void* arg) {
         op = rand() % 100;
         if(op<98) 
         { // leitura
+        printf("Sou a thread %d, tentando ler...\n", i);
             pthread_mutex_lock(&mutex);
                 while(escritores)
                     pthread_cond_wait(&cond, &mutex);
                 leitores++;  //novo leitor
+                printf("Número de leitores ativos: %d\nNúmero de escritores ativos: %d\n", leitores, escritores);
             pthread_mutex_unlock(&mutex);
             
             pthread_rwlock_rdlock(&rwlock);  // trava com lock de leitura
-                Member(i%MAX_VALUE, head_p);    /* Ignore return value */
+                Member(i%MAX_VALUE, head_p);  /* Ignore return value */
             pthread_mutex_unlock(&mutex); 
 
             pthread_mutex_lock(&mutex);
                 leitores--;  // fim da leitura   
             pthread_rwlock_unlock(&rwlock); //destranca o lock de leitura
-    
+
+            printf("Sou a thread %d, e li.\n", i);
             read++;  
         }
         else if(98<=op && op<99) 
@@ -58,30 +61,41 @@ void* tarefa(void* arg) {
             printf("Sou a thread %d, tentando inserir...\n", i);
             pthread_mutex_lock(&mutex);
                 escritores++;
-                pthread_rwlock_wrlock(&rwlock); /* lock de ESCRITA */    
-                    Insert(i%MAX_VALUE, &head_p);  /* Ignore return value */
+                printf("Número de leitores ativos: %d\nNúmero de escritores ativos: %d\n", leitores, escritores);
+            pthread_mutex_unlock(&mutex);
+
+            pthread_rwlock_wrlock(&rwlock); /* lock de ESCRITA */ 
+                Insert(i%MAX_VALUE, &head_p);  /* Ignore return value */
+            pthread_rwlock_unlock(&rwlock);
+
+            pthread_mutex_lock(&mutex);
                 escritores--;
                 if(!escritores)
-                    pthread_cond_broadcast(&cond);  
-                pthread_rwlock_unlock(&rwlock);
-            pthread_mutex_unlock(&mutex);
-            printf("Sou a thread %d e inseri %d/n", i, i%MAX_VALUE); 
-            in++;
+                    pthread_cond_broadcast(&cond);
+            pthread_mutex_unlock(&mutex);  
 
+            printf("Sou a thread %d e inseri %d./n", i, i%MAX_VALUE); 
+            in++;
         }
         else if(op>=99) 
         {  // deleção
             printf("Sou a thread %d, tentando apagar...\n", i);
             pthread_mutex_lock(&mutex);
                 escritores++;
-                pthread_rwlock_wrlock(&rwlock); /* lock de ESCRITA */    
-                    Delete(i%MAX_VALUE, &head_p);  /* Ignore return value */
-                    escritores--;
-                    if(!escritores)
-                        pthread_cond_broadcast(&cond);  
-                pthread_rwlock_unlock(&rwlock);
-            pthread_mutex_unlock(&mutex);    
-            printf("Sou a thread %d e apaguei %d/n", i, i%MAX_VALUE); 
+                printf("Número de leitores ativos: %d\nNúmero de escritores ativos: %d\n", leitores, escritores);
+            pthread_mutex_unlock(&mutex);
+
+            pthread_rwlock_wrlock(&rwlock); /* lock de ESCRITA */    
+                Delete(i%MAX_VALUE, &head_p);  /* Ignore return value */
+            pthread_rwlock_unlock(&rwlock);
+
+            pthread_mutex_lock(&mutex);
+                escritores--;
+                if(!escritores)
+                    pthread_cond_broadcast(&cond);  
+            pthread_mutex_unlock(&mutex);  
+            
+            printf("Sou a thread %d e apaguei %d/n.", i, i%MAX_VALUE); 
             out++;
         }
     }

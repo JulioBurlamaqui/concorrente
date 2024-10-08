@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
     printf("Produto sequencial              = %.26lf\n", produto_ori);
 
     variacao = fabs((produto_ori - (double) produto_concorrente)/produto_ori);
-    printf("Variação relativa               = %.32lf", variacao);
+    printf("Variação relativa               = %.32lf\n", variacao);
 
     //desaloca os espacos de memoria
     free(vetA);
@@ -149,5 +149,4 @@ int main(int argc, char *argv[]) {
     fclose(arq);
 
     return 0;
-
 }

@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     mensagem = (Mensagem*) malloc(sizeof(Mensagem));
 
     //valida e recebe os valores de entrada
-    if(argc < 4) { printf("Use: %s <tamanho da mensagem> <arquivo da mensagem>\n", argv[0]); exit(-1); }
+    if(argc < 3) { printf("Use: %s <tamanho da mensagem> <arquivo da mensagem>\n", argv[0]); exit(-1); }
 
     mensagem->tamanho = atoi(argv[1]);
 
@@ -139,8 +139,7 @@ int main(int argc, char *argv[])
 
     sem_destroy(&estado1);
     sem_destroy(&estado2);
-    sem_destroy(&estado3);
-
+    sem_destroy(&estado3);  
 
     free(mensagem->conteudo);
     free(mensagem);

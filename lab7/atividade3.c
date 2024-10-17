@@ -11,7 +11,7 @@
 
 #define NTHREADS 3
 #define TAM1 15
-#define TAM2 151
+#define TAM2 200
 
 typedef struct 
 {
@@ -44,26 +44,23 @@ void* carregaBuffer1(void *arg)
 }
 
 void* adicionaCaracter(void *arg)
-{//Copia conteúdo do buffer 1 para o buffer 2 adicionando \0 conforme solicitado
-    int i = 0;
+{//Copia conteúdo do buffer 1 para o buffer 2 adicionando \n conforme solicitado
     buffer2[0] = '\0'; // inicializar o buffer2
 
-    while(n < mensagem->tamanho)
+    while (n < mensagem->tamanho)
     {
         sem_wait(&estado2);
 
-            if(i < TAM1)
-            {
-                buffer2[n] = buffer1[i++];
+        for (int i = 0; i < TAM1 && n < mensagem->tamanho; i++)
+        {
+            buffer2[n++] = buffer1[i];
 
-                // Insere '\n' a cada 2n + 1 caracteres com n de 0 a 10. Após n == 10, insere a cada 10 caracteres
-                if ((n <= 10 && (n + 1) % 2 == 1) || (n > 10 && (n + 1) % 10 == 0)) 
-                    buffer2[n++] = '\n';
-               
-                n++;
-            }
+            // Insere '\n' a cada 2n + 1 caracteres até n == 10, depois a cada 10 caracteres
+            if ((n <= 10 && n % 2 == 1) || (n > 10 && n % 10 == 0))
+                buffer2[n++] = '\n';
+        }
 
-            buffer2[n] = '\0';
+        buffer2[n] = '\0'; // finaliza a string
 
         sem_post(&estado1);
     }

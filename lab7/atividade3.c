@@ -10,7 +10,7 @@
 #include <semaphore.h>
 
 #define NTHREADS 3
-#define TAM1 10
+#define TAM1 15
 #define TAM2 151
 
 typedef struct 
@@ -22,7 +22,7 @@ typedef struct
 // Variaveis globais
 sem_t estado1, estado2, estado3;  //semaforos para coordenar a ordem de execucao das threads
 char buffer1[TAM1], buffer2[TAM2];  //buffers malucos!
-Mensagem mensagem;
+Mensagem *mensagem;
 int n = 0; // controla posição de escrita no buffer2
 
 
@@ -30,21 +30,17 @@ void* carregaBuffer1(void *arg)
 {//Carrega trechos do arquivo no buffer 1
     int cont = 0;
 
-    while(1)
+    while(cont < mensagem->tamanho)
     {   
         sem_wait(&estado1);
         
             for(int i = 0; i < TAM1; i++)
-            {
-                //se contador for maior que o tamanho total da mensagem, pode encerrar a rotina
-                if(cont >= mensagem->tamanho)
-                    pthread_exit(NULL);
-
                 buffer1[i] = mensagem->conteudo[cont++];
-            }
 
         sem_post(&estado2);
     }
+
+    pthread_exit(NULL);
 }
 
 void* adicionaCaracter(void *arg)
@@ -60,16 +56,14 @@ void* adicionaCaracter(void *arg)
             {
                 buffer2[n] = buffer1[i++];
 
-                // Insere '\0' a cada 2n + 1 caracteres com n de 0 a 10
-                if (n <= 10 && (n + 1) % 2 == 1 ) 
-                    buffer2[n++] = '\0';
-                
-                // Após n == 10, insere '\0' a cada 10 caracteres
-                if (n > 10 && (n + 1) % 10 == 0) 
-                    buffer2[n++] = '\0';
-                
+                // Insere '\n' a cada 2n + 1 caracteres com n de 0 a 10. Após n == 10, insere a cada 10 caracteres
+                if ((n <= 10 && (n + 1) % 2 == 1) || (n > 10 && (n + 1) % 10 == 0)) 
+                    buffer2[n++] = '\n';
+               
                 n++;
             }
+
+            buffer2[n] = '\0';
 
         sem_post(&estado1);
     }
@@ -93,7 +87,7 @@ int main(int argc, char *argv[])
     FILE *arq; //arquivo de entrada
     size_t ret; //retorno da funcao de leitura no arquivo de entrada
     pthread_t tid[NTHREADS];
-    int tam_buffer1;
+    //int tam_buffer1;
 
     //inicia os semaforos
     sem_init(&estado1, 0, 1);

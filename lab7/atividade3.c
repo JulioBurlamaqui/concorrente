@@ -11,7 +11,7 @@
 
 #define NTHREADS 3
 #define TAM1 15
-#define TAM2 200
+#define TAM2 200        
 
 typedef struct 
 {
@@ -46,17 +46,28 @@ void* carregaBuffer1(void *arg)
 void* adicionaCaracter(void *arg)
 {//Copia conteúdo do buffer 1 para o buffer 2 adicionando \n conforme solicitado
     buffer2[0] = '\0'; // inicializar o buffer2
-
-    while (n < mensagem->tamanho)
+    int count = 0, linha = 0;
+    //contador de números inseridos (que não é a mesma coisa de n) e contador de elementos por linha
+  
+    while (count < mensagem->tamanho) 
     {
         sem_wait(&estado2);
 
-        for (int i = 0; i < TAM1 && n < mensagem->tamanho; i++)
+        for (int i = 0; i < TAM1 && count < mensagem->tamanho; i++) 
         {
             buffer2[n++] = buffer1[i];
+            count++;
 
-            // Insere '\n' a cada 2n + 1 caracteres até n == 10, depois a cada 10 caracteres
-            if ((n <= 10 && n % 2 == 1) || (n > 10 && n % 10 == 0))
+            if (linha < 10) 
+            {
+                if (count == (linha * linha + linha + 1))
+                {  //fórmula dos números triangulares (faz o padrão 2n+1)
+                    buffer2[n++] = '\n';
+                    linha++;
+                }
+            } 
+            else if (count % 10 == 0)
+                // Depois da décima linha, adiciona uma quebra de linha a cada 10 caracteres
                 buffer2[n++] = '\n';
         }
 
